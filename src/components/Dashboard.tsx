@@ -1,316 +1,280 @@
 import React from 'react';
+import { CycleProfile, Observation, RoutineSessionRecord, UserProfile } from '../types';
+import pinkRibbonImg from '../assets/pink-ribbon.png';
+import guideImg from '../assets/guide.png';
+import pdfImg from '../assets/pdf.jpg';
+import personalImg from '../assets/personal.jpg';
+import timeline1Img from '../assets/timeline1.jpg';
+import timeline2Img from '../assets/timeline2.jpg';
 import {
-  AnatomicalZoneId,
-  CycleHealthLog,
-  ExamSessionRecord,
-  FINDING_TYPE_LABELS,
-  PersistenceAnalysis,
-  UserProfile,
-} from '../types/schema';
-import { evaluateCycleAtDate, getPhaseBadgeStyle } from '../services/cycleEngine';
-import { getZoneShortLabel } from '../services/persistenceEngine';
-import { generateClinicianSummaryPDF } from '../services/pdfGenerator';
-import {
-  Sparkles,
   Calendar,
-  Shield,
-  FileDown,
-  Activity,
-  AlertCircle,
-  ArrowRight,
-  Stethoscope,
   Clock,
+  ShieldCheck,
+  Sparkles,
+  ArrowRight,
+  Heart,
 } from 'lucide-react';
 
 interface DashboardProps {
-  profile: UserProfile;
-  exams: ExamSessionRecord[];
-  analyses: PersistenceAnalysis[];
-  cycleLogs: CycleHealthLog[];
-  todayISO: string;
-  onStartGuidedCheck: () => void;
-  onOpenCycleCheckin: () => void;
+  user: UserProfile;
+  cycle: CycleProfile;
+  observations: Observation[];
+  routines: RoutineSessionRecord[];
+  onStartRoutine: (mode?: 'camera' | 'manual' | 'simulated') => void;
+  onOpenBodyMap: () => void;
   onOpenTimeline: () => void;
-  onOpenFindingLogger: (zoneId?: AnatomicalZoneId) => void;
+  onOpenReport: () => void;
+  onUpdateCycle: (updated: CycleProfile) => void;
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({
-  profile,
-  exams,
-  analyses,
-  cycleLogs,
-  todayISO,
-  onStartGuidedCheck,
-  onOpenCycleCheckin,
+  user,
+  cycle,
+  observations,
+  routines,
+  onStartRoutine,
+  onOpenBodyMap,
   onOpenTimeline,
-  onOpenFindingLogger,
+  onOpenReport,
 }) => {
-  const cycleInfo = evaluateCycleAtDate(profile, todayISO);
-  const badge = getPhaseBadgeStyle(cycleInfo.phase);
+  // Compute current cycle day
+  const today = new Date();
+  const lastPeriod = new Date(cycle.lastPeriodDate);
+  const diffTime = today.getTime() - lastPeriod.getTime();
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  const currentCycleDay = diffDays >= 0 ? (diffDays % cycle.cycleLengthDays) + 1 : 1;
 
-  const persistingItems = analyses.filter(
-    (a) => a.status === 'persisting_across_cycle' || a.status === 'red_flag_clinical_priority'
-  );
-  const lutealRecheckItems = analyses.filter(
-    (a) => a.status === 'luteal_phase_observation_recheck_scheduled'
-  );
-
-  const lastExam = exams[0];
+  // Window status
+  const isOptimalWindow = currentCycleDay >= 3 && currentCycleDay <= 10;
+  const recentRoutines = routines.slice(0, 3);
 
   return (
-    <div className="space-y-6">
-      {/* Hero Banner: Cycle-Synced Breast Self-Awareness Window */}
-      <div className="bg-gradient-to-br from-teal-900 via-teal-800 to-slate-900 text-white rounded-2xl p-6 shadow-md">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="space-y-2 max-w-2xl">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-teal-400/20 text-teal-200 border border-teal-400/30">
-                <Sparkles className="w-3.5 h-3.5 text-teal-300" />
-                {cycleInfo.phaseTitle}
-              </span>
-              {cycleInfo.isOptimalCheckWindow && (
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-400 text-slate-950">
-                  ★ Optimal Post-Period Check Window Open Now
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+      {/* 1. Welcoming Hero Banner */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-rose-500/95 via-pink-500/90 to-rose-400 p-6 sm:p-8 text-white shadow-xl shadow-rose-900/10">
+        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div className="space-y-2 max-w-xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-semibold text-rose-50">
+              <Sparkles className="w-3.5 h-3.5 text-rose-200" />
+              <span>Personal Breast Health Baseline</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white drop-shadow-xs">
+              Welcome back, {user.name}
+            </h1>
+            <p className="text-xs sm:text-sm text-rose-100/90 font-medium leading-relaxed">
+              Knowing what is normal for your body is the foundation of breast awareness. Explore your 108 anatomical zones, track tactile observations, and prepare clinician-ready summaries.
+            </p>
+          </div>
+
+          {/* Cycle & Routine Quick Pill */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
+            <div className="glass-panel-warm rounded-2xl p-4 bg-white/15 backdrop-blur-md border border-white/25 flex items-center gap-3 text-white">
+              <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+                <Calendar className="w-5 h-5 text-rose-100" />
+              </div>
+              <div>
+                <span className="text-[10px] uppercase font-bold tracking-wider text-rose-200 block">
+                  Cycle Day {currentCycleDay}
                 </span>
-              )}
+                <span className="text-xs font-bold block">
+                  {isOptimalWindow ? 'Optimal Self-Check Window' : 'Post-Baseline Window'}
+                </span>
+              </div>
             </div>
 
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-              Know What&apos;s Normal for You—Synced to Your Body&apos;s Rhythm
-            </h1>
-            <p className="text-xs sm:text-sm text-teal-100 leading-relaxed">
-              {cycleInfo.recommendationBanner}
-            </p>
-          </div>
-
-          <div className="flex flex-col sm:flex-row lg:flex-col gap-2.5 shrink-0">
-            <button
-              type="button"
-              onClick={onStartGuidedCheck}
-              className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-teal-400 hover:bg-teal-300 text-slate-950 font-bold text-xs sm:text-sm shadow-sm transition"
-            >
-              Start Guided Self-Awareness Check
-              <ArrowRight className="w-4 h-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() => generateClinicianSummaryPDF(profile, exams, analyses, cycleLogs)}
-              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-xs border border-white/20 transition"
-            >
-              <FileDown className="w-4 h-4" />
-              Export 1-Page Clinician PDF
-            </button>
-          </div>
-        </div>
-
-        {/* 3 Core Pillars Strip */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-6 pt-5 border-t border-white/15 text-xs">
-          <div className="bg-white/5 rounded-xl p-3 border border-white/10">
-            <p className="font-bold text-teal-300">1. Complete Zone Coverage</p>
-            <p className="text-slate-300 mt-0.5">
-              Voice + on-device MediaPipe avatar guides you across all 4 breast quadrants, Tail of Spence, underarm, and collarbone.
-            </p>
-          </div>
-          <div className="bg-white/5 rounded-xl p-3 border border-white/10">
-            <p className="font-bold text-teal-300">2. Cycle-Aware Longitudinal Memory</p>
-            <p className="text-slate-300 mt-0.5">
-              Distinguishes luteal-phase hormone fullness from changes that persist across your post-period baseline window.
-            </p>
-          </div>
-          <div className="bg-white/5 rounded-xl p-3 border border-white/10">
-            <p className="font-bold text-teal-300">3. Private By Design</p>
-            <p className="text-slate-300 mt-0.5">
-              Zero camera images or video ever displayed or stored. Everything stays in local IndexedDB on your device.
-            </p>
+            <div className="glass-panel-warm rounded-2xl p-4 bg-white/15 backdrop-blur-md border border-white/25 flex items-center gap-3 text-white">
+              <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+                <Clock className="w-5 h-5 text-rose-100" />
+              </div>
+              <div>
+                <span className="text-[10px] uppercase font-bold tracking-wider text-rose-200 block">
+                  Last Routine
+                </span>
+                <span className="text-xs font-bold block">
+                  {recentRoutines[0]?.date || 'No routine yet'}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Priority Persistence Nudges or Luteal Re-Check Cards */}
-      {(persistingItems.length > 0 || lutealRecheckItems.length > 0) && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {persistingItems.length > 0 && (
-            <div className="p-5 rounded-2xl bg-rose-50 border border-rose-200 flex items-start gap-3.5">
-              <AlertCircle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
-              <div className="space-y-1.5">
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-rose-200 text-rose-900">
-                  Persisting Across Cycle — Worth Discussing with a Doctor
-                </span>
-                <h3 className="text-sm font-bold text-rose-950">
-                  {persistingItems.length} Observation{persistingItems.length > 1 ? 's' : ''} Recorded Across Consecutive Checks
-                </h3>
-                <p className="text-xs text-rose-900 leading-relaxed">
-                  <strong>{getZoneShortLabel(persistingItems[0].finding.zoneId)}</strong> ({FINDING_TYPE_LABELS[persistingItems[0].finding.symptomType].label}) has been noted across {persistingItems[0].consecutiveMonths} checks, including during your post-period baseline window.
-                </p>
-                <div className="pt-1 flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    onClick={onOpenTimeline}
-                    className="text-xs font-bold text-rose-800 hover:underline"
-                  >
-                    Review on Body Map Timeline &rarr;
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => generateClinicianSummaryPDF(profile, exams, analyses, cycleLogs)}
-                    className="text-xs font-bold text-teal-800 hover:underline ml-2"
-                  >
-                    Download Clinician Summary PDF &rarr;
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
+      {/* 2. Four Clean, Visual Core Modules (Primary Navigation with Uploaded Images) */}
+      <div>
+        <h2 className="text-sm font-extrabold text-rose-950 uppercase tracking-wider mb-3 px-1">
+          Select Routine or Module
+        </h2>
 
-          {lutealRecheckItems.length > 0 && (
-            <div className="p-5 rounded-2xl bg-amber-50 border border-amber-200 flex items-start gap-3.5">
-              <Clock className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-              <div className="space-y-1.5">
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-200 text-amber-950">
-                  Cycle-Aware Follow-Up Reminder
-                </span>
-                <h3 className="text-sm font-bold text-amber-950">
-                  Targeted Baseline Re-Check Scheduled
-                </h3>
-                <p className="text-xs text-amber-900 leading-relaxed">
-                  You logged <strong>{getZoneShortLabel(lutealRecheckItems[0].finding.zoneId)}</strong> during your luteal phase when progesterone elevates fullness. Re-check this zone during your post-period window ({cycleInfo.optimalWindowStartISO}).
-                </p>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* 3-Card Summary Row: Hormonal Tissue Context, Recent Coverage, Clinical Screening Guidelines */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Card 1: Current Hormone & Breast Tissue State */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-bold uppercase tracking-wider text-teal-700 flex items-center gap-1.5">
-                <Activity className="w-4 h-4" />
-                Hormone &amp; Tissue State
-              </span>
-              <span
-                className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${badge.bg} ${badge.text} ${badge.border}`}
-              >
-                {cycleInfo.currentCycleDay ? `Day ${cycleInfo.currentCycleDay}` : 'Steady Mode'}
-              </span>
-            </div>
-            <h3 className="text-base font-bold text-slate-900 mb-1.5">
-              {cycleInfo.phaseTitle}
-            </h3>
-            <p className="text-xs text-slate-600 mb-2 leading-relaxed">
-              <strong>Physiology:</strong> {cycleInfo.hormonalSummary}
-            </p>
-            <p className="text-xs text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-100 leading-relaxed">
-              <strong>What to expect in breast tissue:</strong> {cycleInfo.breastTissueState}
-            </p>
-          </div>
-
-          <button
-            type="button"
-            onClick={onOpenCycleCheckin}
-            className="mt-4 w-full py-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-bold text-slate-800 transition"
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
+          {/* Module 1: Guided Routine (using guide.png) */}
+          <div
+            onClick={() => onStartRoutine()}
+            className="group glass-panel-pink rounded-3xl p-5 sm:p-6 border border-pink-200/90 hover:border-rose-400 hover:shadow-xl hover:shadow-rose-500/10 transition-all cursor-pointer flex flex-col justify-between"
           >
-            Log Period Start or Hormonal Symptoms &rarr;
-          </button>
-        </div>
-
-        {/* Card 2: Recent Check Coverage & Observations */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-bold uppercase tracking-wider text-teal-700 flex items-center gap-1.5">
-                <Calendar className="w-4 h-4" />
-                Longitudinal Record
-              </span>
-              <span className="text-xs font-semibold text-slate-500">
-                {exams.length} checks logged
-              </span>
-            </div>
-
-            {lastExam ? (
-              <div className="space-y-2.5">
-                <div className="p-3 rounded-xl bg-teal-50/70 border border-teal-100">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-bold text-teal-950">Last Check: {lastExam.dateISO}</span>
-                    <span className="font-bold text-teal-800">{lastExam.coveragePercent}% Coverage</span>
-                  </div>
-                  <p className="text-[11px] text-teal-900 mt-1">
-                    Performed on Cycle Day {lastExam.cycleDay ?? '-'} ({lastExam.cyclePhase.replace('_', ' ')}).
-                  </p>
-                </div>
-
-                <div className="text-xs text-slate-600 space-y-1">
-                  <p>
-                    <strong>Personal Baseline Note:</strong> &ldquo;{profile.personalBaselineNote}&rdquo;
-                  </p>
+            <div>
+              {/* Image Banner */}
+              <div className="relative w-full h-40 sm:h-44 rounded-2xl overflow-hidden bg-white border border-pink-200 mb-4 flex items-center justify-center shadow-xs">
+                <img
+                  src={guideImg}
+                  alt="Guided Routine"
+                  className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-300"
+                />
+                <div className="absolute top-3 right-3">
+                  <span className="text-[10px] uppercase font-extrabold text-rose-600 bg-white/95 backdrop-blur-sm px-2.5 py-1 rounded-full border border-pink-200 shadow-xs">
+                    Step-by-Step
+                  </span>
                 </div>
               </div>
-            ) : (
-              <p className="text-xs text-slate-500">
-                No check sessions recorded yet. Start your first guided check or load the 4-month demo persona above.
+
+              <h3 className="text-lg font-bold text-rose-950 mb-1 group-hover:text-rose-600 transition-colors">
+                Guided Routine
+              </h3>
+              <p className="text-xs text-rose-900/70 leading-relaxed">
+                Step-by-step visual inspection, continuous spiral palpation, and targeted sector examination with on-device camera AI.
               </p>
-            )}
-          </div>
-
-          <div className="flex gap-2 mt-4">
-            <button
-              type="button"
-              onClick={onOpenTimeline}
-              className="flex-1 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-bold text-slate-800 transition"
-            >
-              View Monthly Timeline
-            </button>
-            <button
-              type="button"
-              onClick={() => onOpenFindingLogger()}
-              className="px-3 py-2 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-900 text-xs font-bold transition"
-            >
-              + Quick Log
-            </button>
-          </div>
-        </div>
-
-        {/* Card 3: Clinical Screening & Ethical Framing */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-bold uppercase tracking-wider text-teal-700 flex items-center gap-1.5">
-                <Stethoscope className="w-4 h-4" />
-                Clinical Screening Guidance
-              </span>
-              <span className="text-xs font-semibold text-slate-500">
-                Age: {profile.ageRange}
-              </span>
             </div>
 
-            <h3 className="text-base font-bold text-slate-900 mb-1.5">
-              Self-Awareness + Clinical Screening
-            </h3>
-            <p className="text-xs text-slate-600 leading-relaxed mb-3">
-              Major guidelines (ACS, USPSTF) emphasize <strong>breast self-awareness</strong>—knowing how your breasts normally look and feel and reporting changes promptly—alongside routine clinical screening:
-            </p>
-
-            <ul className="text-xs text-slate-700 space-y-1.5 bg-slate-50 p-3 rounded-xl border border-slate-100">
-              <li>
-                • <strong>Ages 40–74 (USPSTF / ACS):</strong> Biennial or annual screening mammography is recommended.
-              </li>
-              <li>
-                • <strong>Ages 18–39:</strong> Know your personal baseline, discuss family history risk assessment with a clinician, and report any persistent change.
-              </li>
-            </ul>
+            <div className="pt-4 mt-4 border-t border-pink-100 flex items-center justify-between text-xs font-bold text-rose-600 group-hover:translate-x-0.5 transition-transform">
+              <span>Start Routine Check</span>
+              <ArrowRight className="w-4 h-4" />
+            </div>
           </div>
 
-          <div className="mt-4 flex items-center gap-2 text-[11px] text-slate-500">
-            <Shield className="w-4 h-4 text-teal-700 shrink-0" />
-            <span>
-              Baseline never displays &ldquo;all clear&rdquo;—always consult a clinician for any concerning change.
-            </span>
+          {/* Module 2: Timeline & Trends (Combining timeline1.jpg & timeline2.jpg) */}
+          <div
+            onClick={onOpenTimeline}
+            className="group glass-panel rounded-3xl p-5 sm:p-6 border border-rose-200 hover:border-rose-400 hover:shadow-xl hover:shadow-rose-500/10 transition-all cursor-pointer flex flex-col justify-between"
+          >
+            <div>
+              {/* Combined Split Image Banner */}
+              <div className="relative w-full h-40 sm:h-44 rounded-2xl overflow-hidden bg-white border border-rose-200 mb-4 flex shadow-xs">
+                {/* Left Half: timeline1.jpg (Clinical Heatmap Area) */}
+                <div className="w-1/2 h-full relative overflow-hidden border-r border-rose-200/80">
+                  <img
+                    src={timeline1Img}
+                    alt="Findings Mapping"
+                    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute bottom-2 left-2 px-2 py-0.5 rounded-md bg-black/60 backdrop-blur-sm text-[9px] font-bold text-white uppercase tracking-wider">
+                    Anatomical Log
+                  </div>
+                </div>
+
+                {/* Right Half: timeline2.jpg (Calendar Dates) */}
+                <div className="w-1/2 h-full relative overflow-hidden bg-slate-50">
+                  <img
+                    src={timeline2Img}
+                    alt="Timeline Calendar"
+                    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-md bg-black/60 backdrop-blur-sm text-[9px] font-bold text-white uppercase tracking-wider">
+                    Session Dates
+                  </div>
+                </div>
+
+                <div className="absolute top-3 right-3">
+                  <span className="text-[10px] uppercase font-extrabold text-rose-700 bg-white/95 backdrop-blur-sm px-2.5 py-1 rounded-full border border-rose-200 shadow-xs">
+                    History
+                  </span>
+                </div>
+              </div>
+
+              <h3 className="text-lg font-bold text-rose-950 mb-1 group-hover:text-rose-600 transition-colors">
+                Timeline & Trends
+              </h3>
+              <p className="text-xs text-rose-900/70 leading-relaxed">
+                Review sessions and observations grouped by date, correlated with your cycle, and mapped on the sector diagram.
+              </p>
+            </div>
+
+            <div className="pt-4 mt-4 border-t border-rose-100 flex items-center justify-between text-xs font-bold text-rose-600 group-hover:translate-x-0.5 transition-transform">
+              <span>Open Timeline</span>
+              <ArrowRight className="w-4 h-4" />
+            </div>
+          </div>
+
+          {/* Module 3: Personal Log (using personal.jpg) */}
+          <div
+            onClick={onOpenBodyMap}
+            className="group glass-panel-peach rounded-3xl p-5 sm:p-6 border border-orange-200/90 hover:border-orange-400 hover:shadow-xl hover:shadow-orange-500/10 transition-all cursor-pointer flex flex-col justify-between"
+          >
+            <div>
+              {/* Image Banner */}
+              <div className="relative w-full h-40 sm:h-44 rounded-2xl overflow-hidden bg-white border border-orange-200 mb-4 flex items-center justify-center shadow-xs">
+                <img
+                  src={personalImg}
+                  alt="Personal Log"
+                  className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
+                />
+                <div className="absolute top-3 right-3">
+                  <span className="text-[10px] uppercase font-extrabold text-orange-600 bg-white/95 backdrop-blur-sm px-2.5 py-1 rounded-full border border-orange-200 shadow-xs">
+                    Notes & Map
+                  </span>
+                </div>
+              </div>
+
+              <h3 className="text-lg font-bold text-orange-950 mb-1 group-hover:text-orange-600 transition-colors">
+                Personal Log
+              </h3>
+              <p className="text-xs text-orange-900/70 leading-relaxed">
+                Add personal notes and reflections, refer to the breast sector map, and review the clinical awareness guide.
+              </p>
+            </div>
+
+            <div className="pt-4 mt-4 border-t border-orange-100 flex items-center justify-between text-xs font-bold text-orange-600 group-hover:translate-x-0.5 transition-transform">
+              <span>Open Personal Log</span>
+              <ArrowRight className="w-4 h-4" />
+            </div>
+          </div>
+
+          {/* Module 4: Clinician PDF Report (using pdf.jpg) */}
+          <div
+            onClick={onOpenReport}
+            className="group glass-panel-yellow rounded-3xl p-5 sm:p-6 border border-amber-200 hover:border-amber-400 hover:shadow-xl hover:shadow-amber-500/10 transition-all cursor-pointer flex flex-col justify-between"
+          >
+            <div>
+              {/* Image Banner */}
+              <div className="relative w-full h-40 sm:h-44 rounded-2xl overflow-hidden bg-white border border-amber-200 mb-4 flex items-center justify-center shadow-xs">
+                <img
+                  src={pdfImg}
+                  alt="Clinician Consultation PDF"
+                  className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
+                />
+                <div className="absolute top-3 right-3">
+                  <span className="text-[10px] uppercase font-extrabold text-amber-700 bg-white/95 backdrop-blur-sm px-2.5 py-1 rounded-full border border-amber-200 shadow-xs">
+                    Doctor Ready
+                  </span>
+                </div>
+              </div>
+
+              <h3 className="text-lg font-bold text-amber-950 mb-1 group-hover:text-amber-600 transition-colors">
+                Report (Clinician PDF)
+              </h3>
+              <p className="text-xs text-amber-900/70 leading-relaxed">
+                Download a clean, high-contrast 1-page summary mapping observations onto quadrant schematics for your doctor.
+              </p>
+            </div>
+
+            <div className="pt-4 mt-4 border-t border-amber-100 flex items-center justify-between text-xs font-bold text-amber-700 group-hover:translate-x-0.5 transition-transform">
+              <span>Preview & Download PDF</span>
+              <ArrowRight className="w-4 h-4" />
+            </div>
           </div>
         </div>
+      </div>
+
+      {/* 3. Subtle Clinical Footnote */}
+      <div className="p-4 rounded-2xl bg-rose-50/50 border border-rose-200/60 flex items-center justify-between text-xs text-rose-900/70">
+        <div className="flex items-center gap-2">
+          <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+          <span>Patient-recorded observations for clinical consultation • 100% On-device privacy</span>
+        </div>
+        <span className="hidden sm:inline text-[11px] text-rose-800/60 font-semibold">
+          ACS & USPSTF Aligned
+        </span>
       </div>
     </div>
   );
 };
+
+export default Dashboard;

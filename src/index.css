@@ -1,3 +1,169 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-page: #FFFDFB;
+    --bg-card: #FFFFFF;
+    --bg-warm-beige: #FAF3EC;
+    --bg-soft-peach: #FFF5EE;
+    --bg-soft-pink: #FFF0F3;
+    --bg-soft-yellow: #FEF9C3;
+    --border-peach: #FED7AA;
+    --border-pink: #FECDD3;
+    --border-beige: #EFE4D8;
+    --accent-pink: #E11D48;
+    --accent-rose: #FB7185;
+    --accent-peach: #F97316;
+    --accent-yellow: #F59E0B;
+    --text-primary: #2C2025;
+    --text-secondary: #6B5560;
+    --text-muted: #9C8590;
+
+    /* Enhanced Modern Fonts */
+    --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-heading: 'Urbanist', 'Plus Jakarta Sans', sans-serif;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-body);
+  background-color: #FFFDFB;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(254, 205, 211, 0.35) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(254, 215, 170, 0.35) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(254, 240, 138, 0.25) 0px, transparent 50%);
+  background-attachment: fixed;
+  color: #2C2025;
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.012em;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  letter-spacing: -0.025em;
+  font-weight: 700;
+}
+
+button, input, select, textarea {
+  font-family: var(--font-body);
+}
+
+/* Glassmorphism helpers for warm light theme */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(254, 215, 170, 0.45);
+  box-shadow: 0 4px 25px -4px rgba(244, 63, 94, 0.06), 0 2px 10px -2px rgba(249, 115, 22, 0.04);
+}
+
+.glass-panel-peach {
+  background: linear-gradient(135deg, rgba(255, 245, 238, 0.95), rgba(255, 255, 255, 0.9));
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(254, 215, 170, 0.7);
+  box-shadow: 0 6px 30px -5px rgba(249, 115, 22, 0.08);
+}
+
+.glass-panel-pink {
+  background: linear-gradient(135deg, rgba(255, 240, 243, 0.95), rgba(255, 255, 255, 0.9));
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(254, 205, 211, 0.7);
+  box-shadow: 0 6px 30px -5px rgba(244, 63, 94, 0.08);
+}
+
+.glass-panel-yellow {
+  background: linear-gradient(135deg, rgba(254, 249, 195, 0.6), rgba(255, 255, 255, 0.9));
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(253, 224, 71, 0.6);
+  box-shadow: 0 6px 30px -5px rgba(245, 158, 11, 0.08);
+}
+
+/* Subtle gentle animations */
+@keyframes softPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.02);
+    opacity: 1;
+  }
+}
+
+.animate-soft-pulse {
+  animation: softPulse 3s ease-in-out infinite;
+}
+
+/* Horizontal scrolling ticker animation for clinical disclaimer banner */
+@keyframes marqueeScroll {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.animate-marquee-scroll {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: marqueeScroll 32s linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee-scroll:hover {
+  animation-play-state: paused;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: #FAF3EC;
+}
+::-webkit-scrollbar-thumb {
+  background: #FED7AA;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #FB923C;
+}
+
+/* Print Styles for Clinical Consultation Sheet */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .no-print,
+  .no-print * {
+    display: none !important;
+  }
+  #printable-clinical-sheet {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 8mm 10mm !important;
+    box-shadow: none !important;
+    border: none !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}

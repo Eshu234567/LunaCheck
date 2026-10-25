@@ -1,12 +1,27 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Baseline — Cycle-Synced Breast Self-Awareness & Health Tracker</title>
-  </head>
-  <body class="bg-slate-50 text-slate-900 antialiased selection:bg-teal-100 selection:text-teal-900">
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><path d=%22M50 14 C42 14 36 21 36 31 C36 43 45 57 50 64 C55 57 64 43 64 31 C64 21 58 14 50 14 Z M50 24 C54 24 57 27 57 31 C57 37 53 45 50 51 C47 45 43 37 43 31 C43 27 46 24 50 24 Z%22 fill=%22%23FB7185%22/><path d=%22M43 57 L24 86 C23 88 25 90 28 89 L47 70 Z%22 fill=%22%23E11D48%22/><path d=%22M57 57 L76 86 C77 88 75 90 72 89 L53 70 Z%22 fill=%22%23FB7185%22/></svg>" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sally — Breast Self-Awareness Companion</title>
+  <meta name="description"
+    content="Sally — A soothing, privacy-first Breast Self-Awareness (BSA) routine companion with local zone mapping, cycle correlation, and doctor-ready summaries." />
+  <!-- Refined Soothing & Editorial Typography: Plus Jakarta Sans, Urbanist, Fraunces, Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Outfit:wght@400;500;600;700&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Urbanist:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap"
+    rel="stylesheet" />
+  <!-- MediaPipe Vision CDN fallback for seamless on-device AI landmarker -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+</head>
+
+<body class="bg-[#FFFDFB] text-[#2C2025] antialiased selection:bg-rose-200 selection:text-rose-900">
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
 </html>
