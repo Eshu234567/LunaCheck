@@ -91,14 +91,11 @@ export interface CycleProfile {
 }
 
 export interface UserProfile {
-  email?: string;
   name: string;
   ageBracket: string; // e.g. '25-34', '35-44', etc.
   hasBaselineNotes: boolean;
-  pinHash: string; // Salted SHA-256 hash
-  pinSalt?: string; // Per-user cryptographic salt
+  pinHash: string; // default "1234"
   isPinLocked: boolean;
-  createdAt?: string;
 }
 
 export type ActiveScreen = 'landing' | 'pin' | 'dashboard' | 'routine' | 'timeline' | 'bodymap' | 'report';

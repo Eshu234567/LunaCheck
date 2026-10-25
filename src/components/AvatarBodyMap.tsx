@@ -147,35 +147,35 @@ export const AvatarBodyMap: React.FC<AvatarBodyMapProps> = ({
   const fingerSvg = fingerPadNorm ? normToSvg(fingerPadNorm.u, fingerPadNorm.v) : null;
 
   return (
-    <div className="relative select-none w-full max-w-[440px] mx-auto">
+    <div className="relative select-none w-full max-w-[460px] mx-auto">
       <svg
         viewBox="0 0 420 310"
-        className="w-full h-auto drop-shadow-sm touch-none"
+        className="w-full h-auto drop-shadow-sm touch-none cursor-crosshair"
         onPointerMove={handleSvgPointerMove}
       >
         <defs>
           <radialGradient id="torsoGlow" cx="50%" cy="45%" r="55%">
-            <stop offset="0%" stopColor="#f0fdfa" stopOpacity="0.9" />
-            <stop offset="100%" stopColor="#f8fafc" stopOpacity="0.3" />
+            <stop offset="0%" stopColor="#fff1f2" stopOpacity="0.95" />
+            <stop offset="100%" stopColor="#fff7ed" stopOpacity="0.55" />
           </radialGradient>
         </defs>
 
         {/* Background Card */}
-        <rect x="4" y="4" width="412" height="302" rx="20" fill="url(#torsoGlow)" stroke="#e2e8f0" strokeWidth="1.5" />
+        <rect x="4" y="4" width="412" height="302" rx="24" fill="url(#torsoGlow)" stroke="#fecdd3" strokeWidth="1.5" />
 
         {/* Abstract Anatomical Torso Silhouette (Shoulders, Neck, Sternum, Ribcage) */}
         <path
           d="M 175 18 Q 210 32 245 18 L 258 46 Q 345 55 390 86 L 372 165 L 352 288 L 68 288 L 48 165 L 30 86 Q 75 55 162 46 Z"
           fill="#ffffff"
-          stroke="#cbd5e1"
+          stroke="#fda4af"
           strokeWidth="2"
         />
 
         {/* Center Sternum Reference Line */}
-        <line x1="210" y1="54" x2="210" y2="275" stroke="#e2e8f0" strokeWidth="1.5" strokeDasharray="4 4" />
+        <line x1="210" y1="54" x2="210" y2="275" stroke="#fecdd3" strokeWidth="1.5" strokeDasharray="4 4" />
 
         {/* Side Orientation Headers */}
-        <g className="text-[10px] font-semibold fill-slate-500 tracking-wider">
+        <g className="text-[10px] font-bold fill-rose-800/70 tracking-wider">
           <text x="82" y="38">ANATOMICAL RIGHT</text>
           <text x="262" y="38">ANATOMICAL LEFT</text>
         </g>
@@ -189,47 +189,48 @@ export const AvatarBodyMap: React.FC<AvatarBodyMapProps> = ({
           const isCurrentGuided = activeStepZones.includes(zoneId);
           const isSelected = selectedZoneId === zoneId;
 
-          // Compute fill & stroke based on mode
-          let fillColor = '#f8fafc';
+          // Compute fill & stroke based on mode (Sally Rose/Pink/Peach Palette)
+          let fillColor = '#fffdfb';
           let fillOpacity = 0.85;
-          let strokeColor = '#94a3b8';
+          let strokeColor = '#fda4af';
           let strokeWidth = 1.4;
 
           if (mode === 'coverage') {
             if (isCovered) {
-              fillColor = '#0d9488'; // Teal-600
-              fillOpacity = 0.72;
-              strokeColor = '#0f766e';
-              strokeWidth = 1.8;
+              fillColor = '#e11d48'; // Rose-600
+              fillOpacity = 0.78;
+              strokeColor = '#be123c';
+              strokeWidth = 1.9;
             } else if (ratio > 0.05) {
-              fillColor = '#2dd4bf'; // Teal-400 partial progress
-              fillOpacity = 0.25 + ratio * 0.45;
-              strokeColor = '#0d9488';
+              fillColor = '#fb7185'; // Rose-400 partial progress
+              fillOpacity = 0.28 + ratio * 0.48;
+              strokeColor = '#e11d48';
+              strokeWidth = 1.8;
             } else if (isCurrentGuided) {
-              fillColor = '#ccfbf1'; // Teal-100 guided highlight
-              fillOpacity = 0.7;
-              strokeColor = '#0d9488';
+              fillColor = '#ffe4e6'; // Rose-100 guided highlight
+              fillOpacity = 0.85;
+              strokeColor = '#f43f5e';
               strokeWidth = 2.2;
             }
           } else if (mode === 'gap_review') {
             if (!isCovered) {
               fillColor = '#fef3c7'; // Amber-100 missed gap
-              fillOpacity = 0.9;
+              fillOpacity = 0.92;
               strokeColor = '#d97706';
               strokeWidth = 2.2;
             } else {
-              fillColor = '#ccfbf1';
-              fillOpacity = 0.55;
-              strokeColor = '#0d9488';
+              fillColor = '#ffe4e6';
+              fillOpacity = 0.65;
+              strokeColor = '#e11d48';
             }
           } else if (mode === 'findings') {
-            fillColor = isSelected ? '#ccfbf1' : '#f8fafc';
-            strokeColor = isSelected ? '#0f766e' : '#cbd5e1';
+            fillColor = isSelected ? '#ffe4e6' : '#fffdfb';
+            strokeColor = isSelected ? '#be123c' : '#fda4af';
             strokeWidth = isSelected ? 2.5 : 1.3;
           }
 
           if (isSelected) {
-            strokeColor = '#0f172a';
+            strokeColor = '#881337';
             strokeWidth = 2.5;
           }
 
@@ -252,8 +253,8 @@ export const AvatarBodyMap: React.FC<AvatarBodyMapProps> = ({
                   x={shape.labelPos.x}
                   y={shape.labelPos.y}
                   textAnchor="middle"
-                  className={`text-[8.5px] font-bold pointer-events-none ${
-                    isCovered ? 'fill-white' : 'fill-teal-900'
+                  className={`text-[8.5px] font-extrabold pointer-events-none ${
+                    isCovered ? 'fill-white' : 'fill-rose-950'
                   }`}
                 >
                   {isCovered ? '✓' : `${Math.round(ratio * 100)}%`}
@@ -278,7 +279,6 @@ export const AvatarBodyMap: React.FC<AvatarBodyMapProps> = ({
           const zMeta = ANATOMICAL_ZONES.find((z) => z.id === item.finding.zoneId);
           if (!zMeta) return null;
           const shape = ZONE_SVG_PATHS[item.finding.zoneId];
-          // Slight offset if multiple findings share a zone
           const offsetX = (idx % 2 === 0 ? 1 : -1) * (idx * 3);
           const pinX = shape.labelPos.x + offsetX;
           const pinY = shape.labelPos.y - 2;
@@ -287,7 +287,7 @@ export const AvatarBodyMap: React.FC<AvatarBodyMapProps> = ({
             item.status === 'persisting_across_cycle' || item.status === 'red_flag_clinical_priority';
           const isLuteal = item.status === 'luteal_phase_observation_recheck_scheduled';
 
-          const pinFill = isPriority ? '#e11d48' : isLuteal ? '#d97706' : '#0d9488';
+          const pinFill = isPriority ? '#e11d48' : isLuteal ? '#d97706' : '#f43f5e';
 
           return (
             <g
@@ -328,13 +328,13 @@ export const AvatarBodyMap: React.FC<AvatarBodyMapProps> = ({
               cx={fingerSvg.x}
               cy={fingerSvg.y}
               r="18"
-              fill="#14b8a6"
+              fill="#f43f5e"
               fillOpacity="0.22"
-              stroke="#0d9488"
+              stroke="#e11d48"
               strokeWidth="1.5"
               strokeDasharray="3 2"
             />
-            <circle cx={fingerSvg.x} cy={fingerSvg.y} r="6" fill="#0f766e" stroke="#ffffff" strokeWidth="1.5" />
+            <circle cx={fingerSvg.x} cy={fingerSvg.y} r="6" fill="#be123c" stroke="#ffffff" strokeWidth="1.5" />
           </g>
         )}
       </svg>

@@ -22,7 +22,7 @@ export const App: React.FC = () => {
   const [cycle, setCycle] = useState<CycleProfile>(storageService.getCycleProfile());
   const [observations, setObservations] = useState<Observation[]>(storageService.getObservations());
   const [routines, setRoutines] = useState<RoutineSessionRecord[]>(storageService.getRoutines());
-  const [isLocked, setIsLocked] = useState<boolean>(false);
+  const [, setIsLocked] = useState<boolean>(false);
   const [isMuted, setIsMuted] = useState<boolean>(audioService.getIsMuted());
 
   // Modal states
@@ -45,18 +45,14 @@ export const App: React.FC = () => {
 
   // Handlers
   const handleLock = () => {
-    storageService.logoutAccount();
+    storageService.setLocked(true);
     setIsLocked(true);
     setActiveScreen('pin');
   };
 
-  const handleUnlock = (authenticatedUser: UserProfile) => {
+  const handleUnlock = () => {
     storageService.setLocked(false);
     setIsLocked(false);
-    setUser(authenticatedUser);
-    setCycle(storageService.getCycleProfile());
-    setObservations(storageService.getObservations());
-    setRoutines(storageService.getRoutines());
     setActiveScreen('dashboard');
   };
 
@@ -141,7 +137,6 @@ export const App: React.FC = () => {
 
       {/* 2. Top Navigation Header */}
       <Header
-        user={user}
         activeScreen={activeScreen}
         onNavigate={(screen) => setActiveScreen(screen)}
         onLock={handleLock}
@@ -159,7 +154,7 @@ export const App: React.FC = () => {
             cycle={cycle}
             observations={observations}
             routines={routines}
-            onStartRoutine={() => setIsRoutineVideoOpen(true)}
+            onStartRoutine={() => setActiveScreen('routine')}
             onOpenBodyMap={() => setActiveScreen('bodymap')}
             onOpenTimeline={() => setActiveScreen('timeline')}
             onOpenReport={() => setIsPdfModalOpen(true)}
