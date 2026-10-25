@@ -1,4 +1,4 @@
-# Baseline — Cycle-Synced Breast Self-Awareness & Health Tracker
+# Sally-Guided Breast Self-Examination and Breast Health Tracker
 
 **One-Line Pitch:**  
 A privacy-first breast self-awareness and hormone-health tracker that schedules self-checks during the optimal post-period baseline window, guides complete zone coverage on-device using an abstract avatar, separates cyclical luteal hormone shifts from persistent changes, and exports a one-page clinician summary PDF—with zero cloud storage and zero fertility framing.
