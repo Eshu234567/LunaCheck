@@ -5,7 +5,6 @@ import { audioService } from './services/audioService';
 import { Header } from './components/Header';
 import { DisclaimerBanner } from './components/DisclaimerBanner';
 import { LandingPage } from './components/LandingPage';
-import { PinScreen } from './components/PinScreen';
 import { Dashboard } from './components/Dashboard';
 import { RoutineSession } from './components/RoutineSession';
 import { BodyMapView } from './components/BodyMapView';
@@ -16,13 +15,12 @@ import { RoutineVideoModal } from './components/RoutineVideoModal';
 import pinkRibbonImg from './assets/pink-ribbon.png';
 
 export const App: React.FC = () => {
-  // Start on the Landing Page for the complete user journey: Landing -> PIN -> Dashboard -> Options
+  // Start on the Landing Page for the complete user journey: Landing -> Dashboard -> Options
   const [activeScreen, setActiveScreen] = useState<ActiveScreen>('landing');
   const [user, setUser] = useState<UserProfile>(storageService.getUserProfile());
   const [cycle, setCycle] = useState<CycleProfile>(storageService.getCycleProfile());
   const [observations, setObservations] = useState<Observation[]>(storageService.getObservations());
   const [routines, setRoutines] = useState<RoutineSessionRecord[]>(storageService.getRoutines());
-  const [, setIsLocked] = useState<boolean>(false);
   const [isMuted, setIsMuted] = useState<boolean>(audioService.getIsMuted());
 
   // Modal states
@@ -44,18 +42,6 @@ export const App: React.FC = () => {
   }, [activeScreen]);
 
   // Handlers
-  const handleLock = () => {
-    storageService.setLocked(true);
-    setIsLocked(true);
-    setActiveScreen('pin');
-  };
-
-  const handleUnlock = () => {
-    storageService.setLocked(false);
-    setIsLocked(false);
-    setActiveScreen('dashboard');
-  };
-
   const handleToggleMute = () => {
     const next = !isMuted;
     setIsMuted(next);
@@ -104,7 +90,6 @@ export const App: React.FC = () => {
       setCycle(storageService.getCycleProfile());
       setObservations(storageService.getObservations());
       setRoutines(storageService.getRoutines());
-      setIsLocked(false);
     }
   };
 
@@ -116,18 +101,7 @@ export const App: React.FC = () => {
 
   // If on Landing Page, render the dedicated Landing Page view
   if (activeScreen === 'landing') {
-    return <LandingPage onEnterPortal={() => setActiveScreen('pin')} />;
-  }
-
-  // If on PIN Screen, render the dedicated PIN entry view
-  if (activeScreen === 'pin') {
-    return (
-      <PinScreen
-        user={user}
-        onUnlock={handleUnlock}
-        onBackToLanding={() => setActiveScreen('landing')}
-      />
-    );
+    return <LandingPage onEnterPortal={() => setActiveScreen('dashboard')} />;
   }
 
   return (
@@ -139,7 +113,6 @@ export const App: React.FC = () => {
       <Header
         activeScreen={activeScreen}
         onNavigate={(screen) => setActiveScreen(screen)}
-        onLock={handleLock}
         onExportBackup={handleExportBackup}
         onResetData={handleResetData}
         isMuted={isMuted}

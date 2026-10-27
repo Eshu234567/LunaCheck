@@ -100,7 +100,6 @@ export interface UserProfile {
   lastPeriodStartISO: string; // e.g., 2026-10-17
   monthlyAnchorDay: number; // 1-28 for non-cycling users
   personalBaselineNote: string;
-  pinCode?: string;
   onboardingCompleted: boolean;
 }
 

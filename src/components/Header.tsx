@@ -6,7 +6,6 @@ import { ActiveScreen } from '../types';
 interface HeaderProps {
   activeScreen?: ActiveScreen;
   onNavigate?: (screen: ActiveScreen) => void;
-  onLock?: () => void;
   onExportBackup?: () => void;
   onResetData?: () => void;
   isMuted?: boolean;

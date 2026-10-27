@@ -7,7 +7,6 @@ const STORAGE_KEYS = {
   OBSERVATIONS: 'aura_bsa_observations',
   ROUTINES: 'aura_bsa_routines',
   PERSONAL_LOGS: 'aura_bsa_personal_logs',
-  IS_LOCKED: 'aura_bsa_locked_state',
   CLEAN_V3: 'aura_bsa_clean_v3',
 };
 
@@ -116,15 +115,6 @@ export const storageService = {
     this.savePersonalLogs(logs);
   },
 
-  isLocked(): boolean {
-    const status = localStorage.getItem(STORAGE_KEYS.IS_LOCKED);
-    return status === 'true';
-  },
-
-  setLocked(locked: boolean): void {
-    localStorage.setItem(STORAGE_KEYS.IS_LOCKED, String(locked));
-  },
-
   // Recalculates persistence & cyclic tendencies whenever observations change
   computeObservationPersistence(newObs: Omit<Observation, 'id' | 'persistenceStatus' | 'consecutiveCyclesCount'>): Observation {
     const existingList = this.getObservations();
@@ -200,7 +190,6 @@ export const storageService = {
     localStorage.removeItem(STORAGE_KEYS.CYCLE_PROFILE);
     localStorage.removeItem(STORAGE_KEYS.OBSERVATIONS);
     localStorage.removeItem(STORAGE_KEYS.ROUTINES);
-    localStorage.removeItem(STORAGE_KEYS.IS_LOCKED);
   },
 };
 

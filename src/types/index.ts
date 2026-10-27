@@ -94,11 +94,9 @@ export interface UserProfile {
   name: string;
   ageBracket: string; // e.g. '25-34', '35-44', etc.
   hasBaselineNotes: boolean;
-  pinHash: string; // default "1234"
-  isPinLocked: boolean;
 }
 
-export type ActiveScreen = 'landing' | 'pin' | 'dashboard' | 'routine' | 'timeline' | 'bodymap' | 'report';
+export type ActiveScreen = 'landing' | 'dashboard' | 'routine' | 'timeline' | 'bodymap' | 'report';
 
 export interface PersonalLogEntry {
   id: string;

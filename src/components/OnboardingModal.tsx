@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { UserProfile } from '../types/schema';
-import { ShieldCheck, Lock, HeartPulse, CheckCircle2 } from 'lucide-react';
+import { ShieldCheck, HeartPulse, CheckCircle2 } from 'lucide-react';
 
 interface OnboardingModalProps {
   isOpen: boolean;
@@ -34,7 +34,6 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
   const [personalBaselineNote, setPersonalBaselineNote] = useState<string>(
     initialProfile.personalBaselineNote
   );
-  const [pinCode, setPinCode] = useState<string>(initialProfile.pinCode || '');
 
   if (!isOpen) return null;
 
@@ -48,7 +47,6 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
       lastPeriodStartISO,
       monthlyAnchorDay,
       personalBaselineNote,
-      pinCode: pinCode.trim() || undefined,
       onboardingCompleted: true,
     });
     onClose();
@@ -203,27 +201,6 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
               onChange={(e) => setPersonalBaselineNote(e.target.value)}
               placeholder="e.g., My upper outer quadrants naturally feel slightly ridge-like the week before my period, and soften afterwards."
               className="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs text-slate-900"
-            />
-          </div>
-
-          {/* Optional Local PIN Lock */}
-          <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-2.5">
-              <Lock className="w-4 h-4 text-slate-600" />
-              <div>
-                <p className="text-xs font-bold text-slate-800">Optional Local Privacy PIN</p>
-                <p className="text-[11px] text-slate-500">
-                  Protects your timeline when you tap Quick-Lock (stored strictly in local IndexedDB).
-                </p>
-              </div>
-            </div>
-            <input
-              type="password"
-              maxLength={6}
-              value={pinCode}
-              onChange={(e) => setPinCode(e.target.value)}
-              placeholder="4-digit PIN (optional)"
-              className="w-40 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium"
             />
           </div>
 

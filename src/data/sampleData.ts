@@ -4,8 +4,6 @@ export const DEFAULT_USER_PROFILE: UserProfile = {
   name: '',
   ageBracket: '25–34',
   hasBaselineNotes: false,
-  pinHash: '1234',
-  isPinLocked: false,
 };
 
 export const DEFAULT_CYCLE_PROFILE: CycleProfile = {
